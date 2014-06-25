@@ -1,5 +1,8 @@
 class site_couchdb::mirror {
 
+  Class['site_couchdb::add_users']
+    -> Class['site_couchdb::mirror']
+
   class { 'couchdb':
     admin_pw            => $site_couchdb::couchdb_admin_pw,
     admin_salt          => $site_couchdb::couchdb_admin_salt,

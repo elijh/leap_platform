@@ -127,14 +127,21 @@ class LeapTest < MiniTest::Unit::TestCase
     if params
       uri.query = URI.encode_www_form(params)
     end
-    response = Net::HTTP.get_response(uri)
-    if response.is_a?(Net::HTTPSuccess)
-      yield response.body, response, nil
-    else
-      yield nil, response, nil
-    end
+    response = get_response(uri)
+    body = response.is_a?(Net::HTTPSuccess) && response.body
+    yield body, response, nil
   rescue => exc
     yield nil, nil, exc
+  end
+
+  def get_response(uri)
+    Net::HTTP.start(uri.host, uri.port) do |http|
+      request = Net::HTTP::Get.new uri.request_uri
+      if uri.user
+        request.basic_auth uri.user, uri.password
+      end
+      http.request request
+    end
   end
 
   def assert_get(url, params=nil, options=nil)
